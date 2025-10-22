@@ -1,0 +1,61 @@
+import { useCartStore } from '../store/cart'
+import type { ServiceItem } from '../store/cart'
+import { useSettingsStore } from '../store/settings'
+import Card from '../components/ui/Card'
+import Button from '../components/ui/Button'
+import { Link } from 'react-router-dom'
+
+export default function Services() {
+  const { items, add, remove, increase, decrease } = useCartStore()
+  const { settings } = useSettingsStore()
+  const SERVICES: ServiceItem[] = settings.services
+  const total = items.reduce((sum, i) => sum + i.price * i.qty, 0)
+ 
+
+  return (
+    <div className="max-w-container mx-auto p-4 pb-24">
+      <h1 className="text-2xl font-semibold mb-4">Serviços</h1>
+      <div className="grid grid-cols-1 gap-4">
+        {SERVICES.map((s) => (
+          <Card key={s.id} className="text-center w-full !bg-slate-50 !border-slate-300">
+            <div className="space-y-1 md:space-y-2">
+              <div className="text-base md:text-lg font-semibold">{s.name}</div>
+              <div className="text-sm md:text-base text-slate-600">R$ {s.price.toFixed(2)}</div>
+              <Button className="mt-4 block w-11/12 mx-auto" onClick={() => add(s)}>Adicionar</Button>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      <Card className="mt-6" title="Carrinho">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-slate-600">Itens selecionados</span>
+        </div>
+        {items.length === 0 ? (
+          <p className="text-sm text-slate-500 mt-2">Nenhum serviço adicionado.</p>
+        ) : (
+          <ul className="mt-2 space-y-2">
+            {items.map((i) => (
+              <li key={i.id} className="flex items-center justify-between">
+                <span>
+                  {i.name} — R$ {(i.price * i.qty).toFixed(2)}
+                </span>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" className="h-7 px-2" onClick={() => decrease(i.id)}>−</Button>
+                  <Button variant="outline" className="h-7 px-2" onClick={() => increase(i.id)}>+</Button>
+                  <button className="text-sm text-red-600" onClick={() => remove(i.id)}>Remover</button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+        <div className="mt-4 flex items-center justify-between">
+          <span className="font-medium">Total: R$ {total.toFixed(2)}</span>
+          <Link to="/schedule" className={`inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium ${items.length ? 'bg-brand text-white hover:bg-brand-dark' : 'bg-slate-200 text-slate-500 pointer-events-none'}`}>
+            Realizar agendamento
+          </Link>
+        </div>
+      </Card>
+    </div>
+  )
+}

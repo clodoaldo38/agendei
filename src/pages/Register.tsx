@@ -1,0 +1,101 @@
+import { Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import Card from '../components/ui/Card'
+import Input from '../components/ui/Input'
+import Button from '../components/ui/Button'
+import BrandHeader from '../components/ui/BrandHeader'
+
+export default function Register() {
+  const navigate = useNavigate()
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+
+  const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
+  const phoneDigits = phone.replace(/\D/g, '')
+  const nameValid = name.trim().length >= 2
+  const emailValid = emailRegex.test(email)
+  const phoneValid = phoneDigits.length >= 10
+
+  const pwdLength = password.length >= 8
+  const pwdUpper = /[A-Z]/.test(password)
+  const pwdLower = /[a-z]/.test(password)
+  const pwdNumber = /\d/.test(password)
+  const pwdSpecial = /[^A-Za-z0-9]/.test(password)
+  const pwdScore = [pwdLength, pwdUpper, pwdLower, pwdNumber, pwdSpecial].filter(Boolean).length
+  const passwordValid = pwdScore === 5
+  const confirmValid = confirmPassword.length > 0 && confirmPassword === password
+  const isValid = nameValid && emailValid && phoneValid && passwordValid && confirmValid
+
+  function onSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!isValid) return
+    // Simula cadastro e redireciona para login
+    navigate('/login')
+  }
+  return (
+    <div className="min-h-dvh grid place-items-center p-4">
+      <div className="w-full max-w-md mb-4">
+        <BrandHeader />
+      </div>
+      <Card className="w-full max-w-md" title="Criar conta">
+        <form className="grid gap-3" onSubmit={onSubmit}>
+          <label className="grid gap-1">
+            <span className="text-sm">Nome</span>
+            <Input type="text" value={name} onChange={(e) => setName(e.target.value)} aria-invalid={!nameValid && name.length > 0} className={!nameValid && name.length > 0 ? 'border-red-500' : ''} required />
+            {!nameValid && name.length > 0 && (
+              <span className="text-xs text-red-600">Informe seu nome completo.</span>
+            )}
+          </label>
+          <label className="grid gap-1">
+            <span className="text-sm">E-mail</span>
+            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} aria-invalid={!emailValid && email.length > 0} className={!emailValid && email.length > 0 ? 'border-red-500' : ''} required />
+            {!emailValid && email.length > 0 && (
+              <span className="text-xs text-red-600">Informe um e-mail válido.</span>
+            )}
+          </label>
+          <label className="grid gap-1">
+            <span className="text-sm">Telefone</span>
+            <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} aria-invalid={!phoneValid && phone.length > 0} className={!phoneValid && phone.length > 0 ? 'border-red-500' : ''} required />
+            {!phoneValid && phone.length > 0 && (
+              <span className="text-xs text-red-600">Informe um telefone com DDD (10-11 dígitos).</span>
+            )}
+          </label>
+          <label className="grid gap-1">
+            <span className="text-sm">Senha</span>
+            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} aria-invalid={!passwordValid && password.length > 0} className={!passwordValid && password.length > 0 ? 'border-red-500' : ''} required />
+            <div className="mt-2 flex items-center justify-between">
+              <span className="text-xs">Força da senha: {pwdScore <= 2 ? 'Fraca' : pwdScore <= 4 ? 'Média' : 'Forte'}</span>
+              <div className="h-2 w-24 bg-slate-200 rounded-full overflow-hidden">
+                <div
+                  className={`h-2 ${pwdScore <= 2 ? 'bg-red-500' : pwdScore <= 4 ? 'bg-yellow-500' : 'bg-green-600'}`}
+                  style={{ width: `${(pwdScore / 5) * 100}%` }}
+                />
+              </div>
+            </div>
+            <ul className="mt-2 text-xs grid grid-cols-2 gap-x-4 gap-y-1">
+              <li className={pwdLength ? 'text-green-700' : 'text-slate-600'}>{pwdLength ? '✓' : '✗'} Mínimo de 8 caracteres</li>
+              <li className={pwdUpper ? 'text-green-700' : 'text-slate-600'}>{pwdUpper ? '✓' : '✗'} Uma letra maiúscula</li>
+              <li className={pwdLower ? 'text-green-700' : 'text-slate-600'}>{pwdLower ? '✓' : '✗'} Uma letra minúscula</li>
+              <li className={pwdNumber ? 'text-green-700' : 'text-slate-600'}>{pwdNumber ? '✓' : '✗'} Um número</li>
+              <li className={pwdSpecial ? 'text-green-700' : 'text-slate-600'}>{pwdSpecial ? '✓' : '✗'} Um caractere especial (#, !, @, ...)</li>
+            </ul>
+          </label>
+          <label className="grid gap-1">
+            <span className="text-sm">Confirmar senha</span>
+            <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} aria-invalid={!confirmValid && confirmPassword.length > 0} className={!confirmValid && confirmPassword.length > 0 ? 'border-red-500' : ''} required />
+            {!confirmValid && confirmPassword.length > 0 && (
+              <span className="text-xs text-red-600">As senhas não coincidem.</span>
+            )}
+          </label>
+          <Button type="submit" disabled={!isValid}>Cadastrar</Button>
+        </form>
+        <div className="mt-4 text-sm">
+          Já tem conta? <Link to="/login" className="text-brand">Entrar</Link>
+        </div>
+      </Card>
+    </div>
+  )
+}
