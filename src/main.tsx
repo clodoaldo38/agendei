@@ -6,7 +6,7 @@ import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <HashRouter basename="/agendei">
+    <HashRouter>
       <App />
     </HashRouter>
   </StrictMode>
