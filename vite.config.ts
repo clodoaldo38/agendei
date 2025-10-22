@@ -12,7 +12,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['vite.svg'],
+      includeAssets: ['vite.svg', 'brand-agendei.png'],
       devOptions: {
         enabled: false // Desabilita SW em desenvolvimento para evitar erros de TrustedHTML
       },
@@ -23,7 +23,23 @@ export default defineConfig({
         theme_color: '#0ea5e9',
         background_color: '#ffffff',
         display: 'standalone',
-        lang: 'pt-BR'
+        lang: 'pt-BR',
+        start_url: '/agendei/',
+        scope: '/agendei/',
+        icons: [
+          {
+            src: '/brand-agendei.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: '/brand-agendei.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable'
+          }
+        ]
       },
     }),
   ],
