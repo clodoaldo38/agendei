@@ -4,6 +4,7 @@ import Card from '../components/ui/Card'
 import Input from '../components/ui/Input'
 import Button from '../components/ui/Button'
 import BrandHeader from '../components/ui/BrandHeader'
+import PasswordStrengthHints from '../components/ui/PasswordStrengthHints'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -66,22 +67,7 @@ export default function Register() {
           <label className="grid gap-1">
             <span className="text-sm">Senha</span>
             <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} aria-invalid={!passwordValid && password.length > 0} className={!passwordValid && password.length > 0 ? 'border-red-500' : ''} required />
-            <div className="mt-2 flex items-center justify-between">
-              <span className="text-xs">Força da senha: {pwdScore <= 2 ? 'Fraca' : pwdScore <= 4 ? 'Média' : 'Forte'}</span>
-              <div className="h-2 w-24 bg-slate-200 rounded-full overflow-hidden">
-                <div
-                  className={`h-2 ${pwdScore <= 2 ? 'bg-red-500' : pwdScore <= 4 ? 'bg-yellow-500' : 'bg-green-600'}`}
-                  style={{ width: `${(pwdScore / 5) * 100}%` }}
-                />
-              </div>
-            </div>
-            <ul className="mt-2 text-xs grid grid-cols-2 gap-x-4 gap-y-1">
-              <li className={pwdLength ? 'text-green-700' : 'text-slate-600'}>{pwdLength ? '✓' : '✗'} Mínimo de 8 caracteres</li>
-              <li className={pwdUpper ? 'text-green-700' : 'text-slate-600'}>{pwdUpper ? '✓' : '✗'} Uma letra maiúscula</li>
-              <li className={pwdLower ? 'text-green-700' : 'text-slate-600'}>{pwdLower ? '✓' : '✗'} Uma letra minúscula</li>
-              <li className={pwdNumber ? 'text-green-700' : 'text-slate-600'}>{pwdNumber ? '✓' : '✗'} Um número</li>
-              <li className={pwdSpecial ? 'text-green-700' : 'text-slate-600'}>{pwdSpecial ? '✓' : '✗'} Um caractere especial (#, !, @, ...)</li>
-            </ul>
+            <PasswordStrengthHints password={password} />
           </label>
           <label className="grid gap-1">
             <span className="text-sm">Confirmar senha</span>

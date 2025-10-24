@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/auth'
+import { useSettingsStore } from '../store/settings'
 import Card from '../components/ui/Card'
 import Input from '../components/ui/Input'
 import Button from '../components/ui/Button'
@@ -9,6 +10,7 @@ import BrandHeader from '../components/ui/BrandHeader'
 export default function Login() {
   const navigate = useNavigate()
   const { login } = useAuthStore()
+  const { settings } = useSettingsStore()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({})
@@ -21,10 +23,18 @@ export default function Login() {
     const nextErrors: { email?: string; password?: string } = {}
     if (!emailRegex.test(email)) nextErrors.email = 'Informe um e-mail válido.'
     if (password.length < 6) nextErrors.password = 'A senha deve ter ao menos 6 caracteres.'
+    
+    // Verificar se é tentativa de login de admin
+    const isAdminEmail = email.trim().toLowerCase() === 'admin@agendei.com'
+    if (isAdminEmail && password !== settings.adminPassword) {
+      nextErrors.password = 'Senha incorreta para o administrador.'
+    }
+    
     setErrors(nextErrors)
     if (Object.keys(nextErrors).length > 0) return
-    // Regra simples: admin se email for exatamente admin@agendei.com
-    const isAdmin = email.trim().toLowerCase() === 'admin@agendei.com'
+    
+    // Login bem-sucedido
+    const isAdmin = isAdminEmail
     login({ name: isAdmin ? 'Admin' : 'Cliente', email, role: isAdmin ? 'admin' : 'user' })
     navigate(isAdmin ? '/admin' : '/')
   }
