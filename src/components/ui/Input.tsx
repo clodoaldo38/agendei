@@ -1,18 +1,55 @@
-import { useState, type InputHTMLAttributes } from 'react'
+import { useRef, useState, type InputHTMLAttributes } from 'react'
 
 type Props = InputHTMLAttributes<HTMLInputElement> & {
   // Quando type="password", mostra botão para revelar/ocultar
   revealable?: boolean
 }
 
-export default function Input({ className = '', type = 'text', revealable = true, ...props }: Props) {
+export default function Input({ className = '', type = 'text', revealable = true, onFocus, onKeyDown, ...props }: Props) {
   const [show, setShow] = useState(false)
+  const inputRef = useRef<HTMLInputElement | null>(null)
   const isPassword = type === 'password'
+  const isNumber = type === 'number'
   const inputType = isPassword && revealable ? (show ? 'text' : 'password') : type
   const base = 'border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent'
 
+  const handleFocus: React.FocusEventHandler<HTMLInputElement> = (e) => {
+    if (isNumber) {
+      const val = (e.target as HTMLInputElement).value
+      if (val === '0') {
+        // Seleciona o conteúdo para que o primeiro dígito substitua o zero
+        try {
+          (e.target as HTMLInputElement).select()
+        } catch {}
+      }
+    }
+    onFocus?.(e)
+  }
+
+  const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
+    if (isNumber) {
+      const k = (e as any).key as string
+      const el = e.currentTarget as HTMLInputElement
+      // Se for dígito e o valor atual é '0', limpa o campo antes do input
+      if (/^[0-9]$/.test(k) && el.value === '0') {
+        try {
+          el.value = ''
+        } catch {}
+        // Não prevenimos o evento para permitir que o dígito seja inserido normalmente
+      }
+    }
+    onKeyDown?.(e)
+  }
+
   const inputEl = (
-    <input type={inputType} className={`${base} ${isPassword && revealable ? 'pr-10' : ''} ${className}`} {...props} />
+    <input
+      ref={inputRef}
+      type={inputType}
+      className={`${base} ${isPassword && revealable ? 'pr-10' : ''} ${className}`}
+      onFocus={handleFocus}
+      onKeyDown={handleKeyDown}
+      {...props}
+    />
   )
 
   if (!(isPassword && revealable)) {
