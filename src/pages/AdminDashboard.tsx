@@ -290,7 +290,7 @@ export default function AdminDashboard() {
           <div className="grid gap-3">
             <label className="grid gap-1">
               <span className="text-sm">Dias visíveis à frente</span>
-              <Input type="number" min={1} max={30} value={settings.daysAhead}
+              <Input type="number" min={1} max={30} value={settings.daysAhead} selectOnFocus
                 onChange={(e) => update({ daysAhead: Math.max(1, Math.min(30, Number(e.target.value))) })} />
             </label>
             <div className="grid gap-2">

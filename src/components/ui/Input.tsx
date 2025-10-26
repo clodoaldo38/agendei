@@ -2,10 +2,12 @@ import { useRef, useState, type InputHTMLAttributes } from 'react'
 
 type Props = InputHTMLAttributes<HTMLInputElement> & {
   // Quando type="password", mostra botão para revelar/ocultar
-  revealable?: boolean
+  revealable?: boolean,
+  // Quando true, seleciona o valor ao focar (útil para números)
+  selectOnFocus?: boolean,
 }
 
-export default function Input({ className = '', type = 'text', revealable = true, onFocus, onKeyDown, ...props }: Props) {
+export default function Input({ className = '', type = 'text', revealable = true, selectOnFocus = false, onFocus, onKeyDown, ...props }: Props) {
   const [show, setShow] = useState(false)
   const inputRef = useRef<HTMLInputElement | null>(null)
   const isPassword = type === 'password'
@@ -16,8 +18,7 @@ export default function Input({ className = '', type = 'text', revealable = true
   const handleFocus: React.FocusEventHandler<HTMLInputElement> = (e) => {
     if (isNumber) {
       const val = (e.target as HTMLInputElement).value
-      if (val === '0') {
-        // Seleciona o conteúdo para que o primeiro dígito substitua o zero
+      if (selectOnFocus || val === '0') {
         try {
           (e.target as HTMLInputElement).select()
         } catch {}
