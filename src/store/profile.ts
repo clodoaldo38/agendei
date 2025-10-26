@@ -14,6 +14,7 @@ type ProfileState = {
   load: () => void
   save: () => void
   clearPhoto: () => void
+  reset: () => void
 }
 
 export const useProfileStore = create<ProfileState>((set, get) => ({
@@ -27,4 +28,8 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
     localStorage.setItem(LS_KEY, JSON.stringify(get().profile))
   },
   clearPhoto: () => set({ profile: { ...get().profile, photoUrl: undefined } }),
+  reset: () => {
+    try { localStorage.removeItem(LS_KEY) } catch { /* ignore */ }
+    set({ profile: { name: '', phone: '' } })
+  },
 }))

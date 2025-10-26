@@ -5,9 +5,13 @@ import Input from '../components/ui/Input'
 import Button from '../components/ui/Button'
 import BrandHeader from '../components/ui/BrandHeader'
 import PasswordStrengthHints from '../components/ui/PasswordStrengthHints'
+import { useAuthStore } from '../store/auth'
+import { useProfileStore } from '../store/profile'
 
 export default function Register() {
   const navigate = useNavigate()
+  const { login } = useAuthStore()
+  const { reset, update, save } = useProfileStore()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
@@ -33,8 +37,21 @@ export default function Register() {
   function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!isValid) return
-    // Simula cadastro e redireciona para login
-    navigate('/login')
+    
+    // Simula cadastro e faz login automático
+    const newUser = {
+      name: name.trim(),
+      email: email.trim(),
+      role: 'user' as const
+    }
+    
+    login(newUser)
+    // Zera dados de perfil para não herdar dados do usuário anterior
+    reset()
+    // Preenche dados pessoais com o nome e telefone informados no cadastro
+    update({ name: name.trim(), phone })
+    save()
+    navigate('/')
   }
   return (
     <div className="min-h-dvh grid place-items-center p-4">

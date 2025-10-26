@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/auth'
 import { useSettingsStore } from '../store/settings'
+import { useProfileStore } from '../store/profile'
 import Card from '../components/ui/Card'
 import Input from '../components/ui/Input'
 import Button from '../components/ui/Button'
@@ -10,6 +11,8 @@ import BrandHeader from '../components/ui/BrandHeader'
 export default function Login() {
   const navigate = useNavigate()
   const { login } = useAuthStore()
+  const prevUser = useAuthStore((s) => s.user)
+  const { reset } = useProfileStore()
   const { settings } = useSettingsStore()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -35,6 +38,13 @@ export default function Login() {
     
     // Login bem-sucedido
     const isAdmin = isAdminEmail
+
+    // Se o e-mail mudou em relação ao usuário atual, limpar perfil salvo
+    const isDifferentUser = (prevUser?.email || '').toLowerCase() !== email.trim().toLowerCase()
+    if (isDifferentUser) {
+      reset()
+    }
+
     login({ name: isAdmin ? 'Admin' : 'Cliente', email, role: isAdmin ? 'admin' : 'user' })
     navigate(isAdmin ? '/admin' : '/')
   }

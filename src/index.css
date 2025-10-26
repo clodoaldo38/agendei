@@ -4,3 +4,21 @@
 
 html, body, #root { height: 100%; }
 body { margin: 0; }
+
+/* Borda animada para cards informativos */
+.animated-border {
+  border-radius: 0.75rem; /* rounded-xl */
+  border: 1px solid transparent;
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.45);
+  animation: pulse-border 2.5s ease-in-out infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.45); }
+  50% { box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.6); }
+}
+
+/* Classe de tipografia elegante para destaques informativos */
+.font-elegant {
+  font-family: 'Playfair Display', serif;
+}

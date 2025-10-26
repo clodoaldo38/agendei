@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import Card from '../components/ui/Card'
 import Input from '../components/ui/Input'
 import Button from '../components/ui/Button'
+import UploadButton from '../components/ui/UploadButton'
 import { useProfileStore } from '../store/profile'
 import { useNavigate } from 'react-router-dom'
 export default function Profile() {
@@ -39,10 +40,10 @@ export default function Profile() {
             ) : (
               <div className="w-16 h-16 rounded-full bg-slate-200" />
             )}
-            <label className="text-sm">
-              <span className="block mb-1">Foto de perfil</span>
-              <Input type="file" accept="image/*" onChange={onPhotoChange} />
-            </label>
+            <div className="text-sm">
+              <span className="block mb-2">Foto de perfil</span>
+              <UploadButton accept="image/*" onFileSelect={onPhotoChange} />
+            </div>
           </div>
         </Card>
 

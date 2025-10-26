@@ -14,7 +14,14 @@ export default function Services() {
 
   return (
     <div className="max-w-container mx-auto p-4 pb-24">
-      <h1 className="text-2xl font-semibold mb-4">Serviços</h1>
+      {/* Card informativo com borda animada */}
+      <Card className="animated-border !border-transparent w-full mb-4 !bg-sky-50">
+        <div className="text-center space-y-1 font-elegant">
+          <p className="text-base md:text-lg text-slate-700">Olá, abaixo escolha os serviços desejados.</p>
+          <p className="text-sm md:text-base text-slate-600">Obrigado(a) pela preferência!</p>
+        </div>
+      </Card>
+      <h1 className="text-2xl font-semibold mb-4 text-center">Serviços</h1>
       <div className="grid grid-cols-1 gap-4">
         {SERVICES.map((s) => (
           <Card key={s.id} className="text-center w-full !bg-slate-50 !border-slate-300">
