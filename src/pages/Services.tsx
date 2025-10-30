@@ -58,7 +58,7 @@ export default function Services() {
         )}
         <div className="mt-4 flex items-center justify-between">
           <span className="font-medium">Total: R$ {total.toFixed(2)}</span>
-          <Link to="/schedule" className={`inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium ${items.length ? 'bg-brand text-white hover:bg-brand-dark' : 'bg-slate-200 text-slate-500 pointer-events-none'}`}>
+          <Link to="/schedule" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className={`inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium ${items.length ? 'bg-brand text-white hover:bg-brand-dark' : 'bg-slate-200 text-slate-500 pointer-events-none'}`}>
             Realizar agendamento
           </Link>
         </div>

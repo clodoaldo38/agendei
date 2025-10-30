@@ -17,6 +17,7 @@ export default function FloatingCartButton() {
     <div className="fixed bottom-6 right-6 z-40">
       <Link
         to="/schedule"
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         className="relative h-14 w-14 rounded-full bg-brand text-white shadow-lg hover:bg-brand-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand flex items-center justify-center"
         title="Carrinho"
         aria-label="Abrir carrinho"

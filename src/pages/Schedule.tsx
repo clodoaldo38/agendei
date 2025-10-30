@@ -29,6 +29,11 @@ export default function Schedule() {
     loadProfile()
   }, [loadAppointments, loadProfile])
 
+  // Ao entrar na página de agendamento, garantir que a rolagem vá para o topo
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
+
   const nowIso = dayjs().format('YYYY-MM-DD')
   const nowHour = dayjs().hour()
   const nowMinute = dayjs().minute()
