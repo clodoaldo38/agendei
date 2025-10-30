@@ -25,6 +25,9 @@ type Settings = {
   developerPassword?: string // senha do desenvolvedor
   developerEmail?: string // e-mail de acesso do desenvolvedor
   bannerAccess?: 'developer' | 'admin' | 'none' // controle de acesso ao módulo de banners
+  // Dados da logo do app (PWA)
+  appLogoData?: string
+  appLogoUpdated?: number
 }
 
 type SettingsState = {
@@ -56,6 +59,8 @@ const defaultSettings: Settings = {
   developerPassword: 'Desenvolvedor123!',
   developerEmail: 'desenvolvedor@agendei.com',
   bannerAccess: 'developer',
+  appLogoData: undefined,
+  appLogoUpdated: undefined,
 }
 
 const LS_KEY = 'agendei_settings'

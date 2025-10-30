@@ -11,7 +11,7 @@ export default function BrandHeader({ className = '', title = 'Agendei', src = '
   const withBase = (p: string) => `${import.meta.env.BASE_URL}${p.replace(/^\//, '')}`
   const [imgSrc, setImgSrc] = React.useState(withBase(src))
   return (
-    <div className={`grid justify-items-center gap-2 ${className}`}>
+    <div className={`grid justify-items-center gap-3 ${className}`}>
       <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white border border-slate-200 shadow-card overflow-hidden flex items-center justify-center">
         <img
           src={imgSrc}
@@ -20,8 +20,14 @@ export default function BrandHeader({ className = '', title = 'Agendei', src = '
           onError={() => setImgSrc(withBase('/vite.svg'))}
         />
       </div>
-      <div className="text-sm md:text-base text-slate-700 font-medium text-center">
-        {cta}
+      <div
+        className="px-4 py-2 rounded-xl border shadow-card text-center
+                   bg-gradient-to-r from-brand/10 to-slate-50 border-brand/20"
+        aria-label="Mensagem de boas-vindas"
+      >
+        <span className="block text-brand-dark font-semibold tracking-tight text-base sm:text-lg">
+          {cta}
+        </span>
       </div>
     </div>
   )

@@ -35,6 +35,11 @@ export default function AdminDashboard() {
   useEffect(() => {
     setBannerAccessDraft(settings.bannerAccess || 'developer')
   }, [settings.bannerAccess])
+
+  // App logo management
+  const [appLogoFile, setAppLogoFile] = useState<File | null>(null)
+  const [appLogoPreview, setAppLogoPreview] = useState<string | null>(null)
+  const [logoUploadStatus, setLogoUploadStatus] = useState<string | null>(null)
   const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
   const emailValid = emailRegex.test(devEmailDraft.trim())
   const pwdLength = devPassword.length >= 8
@@ -135,6 +140,85 @@ export default function AdminDashboard() {
     const reader = new FileReader()
     reader.onload = () => update({ logoUrl: String(reader.result) })
     reader.readAsDataURL(file)
+  }
+
+  function onAppLogoFile(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    
+    // Validar se é PNG
+    if (!file.type.includes('png')) {
+      setLogoUploadStatus('Erro: Apenas arquivos PNG são aceitos.')
+      return
+    }
+    
+    // Validar tamanho (máximo 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      setLogoUploadStatus('Erro: Arquivo muito grande. Máximo 2MB.')
+      return
+    }
+    
+    setAppLogoFile(file)
+    
+    // Criar preview
+    const reader = new FileReader()
+    reader.onload = () => setAppLogoPreview(String(reader.result))
+    reader.readAsDataURL(file)
+    
+    setLogoUploadStatus(null)
+  }
+
+  async function saveAppLogo() {
+    if (!appLogoFile) return
+    
+    setLogoUploadStatus('Salvando logo...')
+    
+    try {
+      // Converter arquivo para ArrayBuffer para salvar como arquivo binário
+      const arrayBuffer = await appLogoFile.arrayBuffer()
+      const uint8Array = new Uint8Array(arrayBuffer)
+      
+      // Converter para base64
+      const base64Data = btoa(String.fromCharCode(...uint8Array))
+      
+      // Salvar no settings para persistir
+      update({ 
+        appLogoData: base64Data,
+        appLogoUpdated: Date.now()
+      })
+      
+      // Criar arquivo temporário para o script de build
+      const logoData = {
+        data: base64Data,
+        filename: 'brand-agendei.png',
+        updated: Date.now()
+      }
+      
+      // Simular salvamento em arquivo (em produção seria uma API)
+      const blob = new Blob([JSON.stringify(logoData)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = '.temp-logo.json'
+      a.style.display = 'none'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+      
+      setLogoUploadStatus('Logo salva! Baixe o arquivo .temp-logo.json e execute "npm run build" para aplicar.')
+      
+      // Limpar após 5 segundos
+      setTimeout(() => {
+        setLogoUploadStatus(null)
+        setAppLogoFile(null)
+        setAppLogoPreview(null)
+      }, 5000)
+      
+    } catch (error) {
+      console.error('Erro ao salvar logo:', error)
+      setLogoUploadStatus('Erro ao salvar logo. Tente novamente.')
+    }
   }
 
   function addBlockedDate(dateIso: string) {
@@ -308,6 +392,49 @@ export default function AdminDashboard() {
               </label>
               
               <Button className="h-9 px-3" onClick={saveBannerAccess}>Salvar acesso</Button>
+              
+              {/* Separador visual */}
+              <hr className="border-slate-200" />
+              
+              {/* Upload da logo do app */}
+              <div className="grid gap-1">
+                <span className="text-sm">Logo do App (PWA)</span>
+                
+                {/* Logo atual */}
+                <div className="flex items-center gap-3 p-2 bg-slate-50 rounded border">
+                  <img src="/brand-agendei.png" alt="Logo atual" className="h-8 w-8 object-contain" />
+                  <span className="text-xs text-slate-600">Logo atual do app</span>
+                </div>
+                
+                <UploadButton onFileSelect={onAppLogoFile} />
+                <span className="text-xs text-slate-500">
+                  Arquivo PNG, máximo 2MB. Será usado como ícone do app quando instalado no celular.
+                </span>
+                
+                {appLogoPreview && (
+                  <div className="mt-2 flex items-center gap-3">
+                    <img src={appLogoPreview} alt="Preview da logo" className="h-12 w-12 object-contain border rounded" />
+                    <div className="flex gap-2">
+                      <Button className="h-8 px-3" onClick={saveAppLogo} disabled={!appLogoFile}>
+                        Salvar logo
+                      </Button>
+                      <Button variant="outline" className="h-8 px-3" onClick={() => {
+                        setAppLogoFile(null)
+                        setAppLogoPreview(null)
+                        setLogoUploadStatus(null)
+                      }}>
+                        Cancelar
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                
+                {logoUploadStatus && (
+                  <span className={logoUploadStatus.startsWith('Erro') ? 'text-xs text-red-600' : 'text-xs text-green-600'}>
+                    {logoUploadStatus}
+                  </span>
+                )}
+              </div>
               
               {devSuccessMsg && (
                 <span className={devSuccessMsg.startsWith('Acesso') ? 'text-xs text-green-600' : 'text-xs text-red-600'}>
