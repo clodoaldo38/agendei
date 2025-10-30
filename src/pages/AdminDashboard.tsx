@@ -88,6 +88,16 @@ export default function AdminDashboard() {
   // Banners de parceiros
   const [newBanner, setNewBanner] = useState<{ imageUrl: string; href?: string; displayMode?: 'contain' | 'cover' }>({ imageUrl: '', href: '', displayMode: 'contain' })
 
+  // Estado de edição para tempo de troca (segundos) dos banners
+  const [bannerIntervalSecDraft, setBannerIntervalSecDraft] = useState<string>(() => {
+    const sec = Math.round(((settings.partnerBannerIntervalMs ?? 0) as number) / 1000)
+    return String(sec)
+  })
+  useEffect(() => {
+    const sec = Math.round(((settings.partnerBannerIntervalMs ?? 0) as number) / 1000)
+    setBannerIntervalSecDraft(String(sec))
+  }, [settings.partnerBannerIntervalMs])
+
   function onBannerFile(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
@@ -224,8 +234,24 @@ export default function AdminDashboard() {
 
             <div className="grid gap-1">
               <span className="text-sm">Tempo de troca (segundos)</span>
-              <Input type="number" min={2} max={60} value={Math.round((settings.partnerBannerIntervalMs || 5000) / 1000)}
-                onChange={(e) => update({ partnerBannerIntervalMs: Math.max(2000, Number(e.target.value) * 1000) })} />
+              <Input
+                type="number"
+                min={0}
+                max={60}
+                value={bannerIntervalSecDraft}
+                selectOnFocus
+                onChange={(e) => {
+                  // Não aplicar clamp durante digitação para evitar travas; manter rascunho como string
+                  setBannerIntervalSecDraft(e.target.value)
+                }}
+                onBlur={(e) => {
+                  const raw = e.target.value
+                  const num = Number(raw)
+                  const clamped = Math.max(2, Math.min(60, Number.isNaN(num) ? 0 : num))
+                  update({ partnerBannerIntervalMs: clamped * 1000 })
+                  setBannerIntervalSecDraft(String(clamped))
+                }}
+              />
               <span className="text-xs text-slate-500">Define o tempo que cada banner permanece visível antes de ir para o próximo.</span>
             </div>
 
