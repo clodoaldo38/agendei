@@ -104,7 +104,7 @@ export default function ForgotPassword() {
       <Card className="w-full max-w-md" title="Recuperar senha" subtitle="Escolha o método: e-mail ou WhatsApp.">
         <div className="flex gap-2 mb-3">
           <Button variant={method === 'email' ? 'primary' : 'outline'} onClick={() => setMethod('email')}>Via e-mail</Button>
-          <Button variant={method === 'whatsapp' ? 'whatsapp' : 'outline'} onClick={() => setMethod('whatsapp')}>Via WhatsApp</Button>
+          <Button variant="whatsapp" onClick={() => setMethod('whatsapp')}>Via WhatsApp</Button>
         </div>
 
         {method === 'email' ? (

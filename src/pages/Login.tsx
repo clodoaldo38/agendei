@@ -30,7 +30,8 @@ export default function Login() {
     // Verificar se é tentativa de login de admin ou desenvolvedor
     const normalizedEmail = email.trim().toLowerCase()
     const isAdminEmail = normalizedEmail === 'admin@agendei.com'
-    const isDevEmail = normalizedEmail === 'desenvolvedor@agendei.com'
+    const devEmailSetting = String((settings as any).developerEmail || 'desenvolvedor@agendei.com').trim().toLowerCase()
+    const isDevEmail = normalizedEmail === devEmailSetting
     if (isAdminEmail && password !== settings.adminPassword) {
       nextErrors.password = 'Senha incorreta para o administrador.'
     }

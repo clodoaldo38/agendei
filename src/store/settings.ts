@@ -23,6 +23,7 @@ type Settings = {
   currentHourCutoffMin: number // minutes after current hour starts to block it (0-59)
   adminPassword: string // senha do administrador
   developerPassword?: string // senha do desenvolvedor
+  developerEmail?: string // e-mail de acesso do desenvolvedor
   bannerAccess?: 'developer' | 'admin' | 'none' // controle de acesso ao módulo de banners
 }
 
@@ -53,6 +54,7 @@ const defaultSettings: Settings = {
   currentHourCutoffMin: 5,
   adminPassword: 'Admin123!', // senha padrão do administrador
   developerPassword: 'Desenvolvedor123!',
+  developerEmail: 'desenvolvedor@agendei.com',
   bannerAccess: 'developer',
 }
 

@@ -34,6 +34,25 @@ export default function Register() {
   const confirmValid = confirmPassword.length > 0 && confirmPassword === password
   const isValid = nameValid && emailValid && phoneValid && passwordValid && confirmValid
 
+  function generateStrongPassword() {
+    const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    const lower = 'abcdefghijklmnopqrstuvwxyz'
+    const nums = '0123456789'
+    const specials = '!@#$%^&*()-_=+[]{};:,.<>?'
+    function pick(str: string) { return str[Math.floor(Math.random() * str.length)] }
+    const base = [pick(upper), pick(lower), pick(nums), pick(specials)]
+    const all = upper + lower + nums + specials
+    const targetLen = 12
+    while (base.length < targetLen) base.push(pick(all))
+    for (let i = base.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      const tmp = base[i]; base[i] = base[j]; base[j] = tmp
+    }
+    const pwd = base.join('')
+    setPassword(pwd)
+    setConfirmPassword(pwd)
+  }
+
   function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!isValid) return
@@ -85,6 +104,9 @@ export default function Register() {
             <span className="text-sm">Senha</span>
             <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} aria-invalid={!passwordValid && password.length > 0} className={!passwordValid && password.length > 0 ? 'border-red-500' : ''} required />
             <PasswordStrengthHints password={password} />
+            <div>
+              <Button type="button" className="h-8 px-3 bg-orange-500 hover:bg-orange-600 text-white" onClick={generateStrongPassword}>Gerar senha forte</Button>
+            </div>
           </label>
           <label className="grid gap-1">
             <span className="text-sm">Confirmar senha</span>

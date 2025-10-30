@@ -21,7 +21,8 @@ export default function NavBar() {
 
   const isAuthPage = ['/login', '/register', '/forgot-password'].includes(location.pathname)
   const isAdminPage = location.pathname.startsWith('/admin')
-  if (isAuthPage) return null
+  // Oculta completamente o cabeçalho no painel do desenvolvedor
+  if (isAuthPage || (isAdminPage && user?.role === 'developer')) return null
 
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b shadow-sm">

@@ -4,7 +4,9 @@ import Input from '../components/ui/Input'
 import Button from '../components/ui/Button'
 import UploadButton from '../components/ui/UploadButton'
 import ChangePasswordForm from '../components/ChangePasswordForm'
+import PasswordStrengthHints from '../components/ui/PasswordStrengthHints'
 import { useMemo, useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import type { ChangeEvent } from 'react'
 import { hourlySlots } from '../utils/dates'
 import { useAppointmentsStore } from '../store/appointments'
@@ -14,12 +16,61 @@ type EditableService = { id: string; name: string; price: number }
 
 export default function AdminDashboard() {
   const { settings, update, save } = useSettingsStore()
-  const { user } = useAuthStore()
+  const { user, logout } = useAuthStore()
   const [saved, setSaved] = useState(false)
+  const navigate = useNavigate()
 
   const [newService, setNewService] = useState<EditableService>({ id: '', name: '', price: 0 })
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editValue, setEditValue] = useState<EditableService | null>(null)
+
+  // Dev access management (email + strong password)
+  const [devEmailDraft, setDevEmailDraft] = useState<string>(() => String((settings as any).developerEmail || 'desenvolvedor@agendei.com'))
+  const [devPassword, setDevPassword] = useState('')
+  const [devConfirmPassword, setDevConfirmPassword] = useState('')
+  const [devSuccessMsg, setDevSuccessMsg] = useState<string | null>(null)
+  const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
+  const emailValid = emailRegex.test(devEmailDraft.trim())
+  const pwdLength = devPassword.length >= 8
+  const pwdUpper = /[A-Z]/.test(devPassword)
+  const pwdLower = /[a-z]/.test(devPassword)
+  const pwdNumber = /\d/.test(devPassword)
+  const pwdSpecial = /[^A-Za-z0-9]/.test(devPassword)
+  const pwdScore = [pwdLength, pwdUpper, pwdLower, pwdNumber, pwdSpecial].filter(Boolean).length
+  const passwordValid = pwdScore === 5
+  const confirmValid = devConfirmPassword.length > 0 && devConfirmPassword === devPassword
+
+  function generateStrongPassword() {
+    const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    const lower = 'abcdefghijklmnopqrstuvwxyz'
+    const nums = '0123456789'
+    const specials = '!@#$%^&*()-_=+[]{};:,.<>?'
+    function pick(str: string) { return str[Math.floor(Math.random() * str.length)] }
+    const base = [pick(upper), pick(lower), pick(nums), pick(specials)]
+    const all = upper + lower + nums + specials
+    const targetLen = 12
+    while (base.length < targetLen) base.push(pick(all))
+    // shuffle
+    for (let i = base.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      const tmp = base[i]; base[i] = base[j]; base[j] = tmp
+    }
+    const pwd = base.join('')
+    setDevPassword(pwd)
+    setDevConfirmPassword(pwd)
+  }
+
+  function saveDeveloperAccess() {
+    setDevSuccessMsg(null)
+    const email = devEmailDraft.trim()
+    if (!emailValid) { setDevSuccessMsg('Informe um e-mail válido.'); return }
+    if (!passwordValid || !confirmValid) { setDevSuccessMsg('Verifique os requisitos da senha e a confirmação.'); return }
+    update({ developerEmail: email, developerPassword: devPassword })
+    save()
+    setSaved(true)
+    setTimeout(() => setSaved(false), 1500)
+    setDevSuccessMsg('Acesso do desenvolvedor atualizado com sucesso!')
+  }
 
   function slugify(name: string) {
     return name
@@ -186,6 +237,9 @@ export default function AdminDashboard() {
           {/* Ações rápidas */}
           <div className="ml-auto flex items-center gap-2">
             {saved && <span className="text-xs text-green-600">Configurações salvas!</span>}
+            {user?.role === 'developer' && (
+              <Button className="h-8 px-3" onClick={() => { logout(); navigate('/login') }}>Sair</Button>
+            )}
           </div>
         </div>
       </div>
@@ -194,6 +248,37 @@ export default function AdminDashboard() {
       {/* âncoras serão posicionadas diretamente antes de cada seção */}
 
       <div className="grid md:grid-cols-2 gap-6">
+        {/* Seção Acesso do Desenvolvedor (visível apenas para developer) */}
+        {user?.role === 'developer' && (
+          <Card title="Acesso do Desenvolvedor" subtitle="Defina e-mail e gere senha forte.">
+            <div className="grid gap-3">
+              <label className="grid gap-1">
+                <span className="text-sm">E-mail de acesso</span>
+                <Input type="email" value={devEmailDraft} onChange={(e) => setDevEmailDraft(e.target.value)} aria-invalid={!emailValid} className={!emailValid ? 'border-red-500' : ''} />
+                {!emailValid && <span className="text-xs text-red-600">Informe um e-mail válido.</span>}
+              </label>
+              <label className="grid gap-1">
+                <span className="text-sm">Nova senha</span>
+                <Input type="password" value={devPassword} onChange={(e) => setDevPassword(e.target.value)} aria-invalid={!passwordValid && devPassword.length > 0} className={!passwordValid && devPassword.length > 0 ? 'border-red-500' : ''} />
+                <PasswordStrengthHints password={devPassword} />
+              </label>
+              <label className="grid gap-1">
+                <span className="text-sm">Confirmar senha</span>
+                <Input type="password" value={devConfirmPassword} onChange={(e) => setDevConfirmPassword(e.target.value)} aria-invalid={!confirmValid && devConfirmPassword.length > 0} className={!confirmValid && devConfirmPassword.length > 0 ? 'border-red-500' : ''} />
+                {!confirmValid && devConfirmPassword.length > 0 && <span className="text-xs text-red-600">A confirmação deve coincidir.</span>}
+              </label>
+              <div className="flex gap-2">
+                <Button variant="outline" className="h-9 px-3" onClick={generateStrongPassword}>Gerar senha forte</Button>
+                <Button className="h-9 px-3" onClick={saveDeveloperAccess} disabled={!emailValid || !passwordValid || !confirmValid}>Salvar acesso</Button>
+              </div>
+              {devSuccessMsg && (
+                <span className={devSuccessMsg.startsWith('Acesso') ? 'text-xs text-green-600' : 'text-xs text-red-600'}>
+                  {devSuccessMsg}
+                </span>
+              )}
+            </div>
+          </Card>
+        )}
         {/* Âncora Estabelecimento (oculto no modo desenvolvedor) */}
         {user?.role !== 'developer' && (
           <>
