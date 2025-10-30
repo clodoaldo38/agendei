@@ -98,6 +98,12 @@ export default function AdminDashboard() {
     setBannerIntervalSecDraft(String(sec))
   }, [settings.partnerBannerIntervalMs])
 
+  // Estado de edição para Dias visíveis à frente (edição fluida + clamp no blur)
+  const [daysAheadDraft, setDaysAheadDraft] = useState<string>(() => String(settings.daysAhead ?? 7))
+  useEffect(() => {
+    setDaysAheadDraft(String(settings.daysAhead ?? 7))
+  }, [settings.daysAhead])
+
   function onBannerFile(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
@@ -316,8 +322,24 @@ export default function AdminDashboard() {
           <div className="grid gap-3">
             <label className="grid gap-1">
               <span className="text-sm">Dias visíveis à frente</span>
-              <Input type="number" min={1} max={30} value={settings.daysAhead} selectOnFocus
-                onChange={(e) => update({ daysAhead: Math.max(1, Math.min(30, Number(e.target.value))) })} />
+              <Input
+                type="number"
+                min={1}
+                max={30}
+                value={daysAheadDraft}
+                selectOnFocus
+                onChange={(e) => {
+                  // Não aplicar clamp durante digitação; manter edição fluida como string
+                  setDaysAheadDraft(e.target.value)
+                }}
+                onBlur={(e) => {
+                  const raw = e.target.value
+                  const num = Number(raw)
+                  const clamped = Math.max(1, Math.min(30, Number.isNaN(num) ? 1 : num))
+                  update({ daysAhead: clamped })
+                  setDaysAheadDraft(String(clamped))
+                }}
+              />
             </label>
             <div className="grid gap-2">
               <span className="text-sm">Datas bloqueadas</span>
