@@ -8,11 +8,13 @@ import { useMemo, useState, useEffect, useRef } from 'react'
 import type { ChangeEvent } from 'react'
 import { hourlySlots } from '../utils/dates'
 import { useAppointmentsStore } from '../store/appointments'
+import { useAuthStore } from '../store/auth'
 
 type EditableService = { id: string; name: string; price: number }
 
 export default function AdminDashboard() {
   const { settings, update, save } = useSettingsStore()
+  const { user } = useAuthStore()
   const [saved, setSaved] = useState(false)
 
   const [newService, setNewService] = useState<EditableService>({ id: '', name: '', price: 0 })
@@ -155,8 +157,12 @@ export default function AdminDashboard() {
 
   return (
     <div className="max-w-container mx-auto p-4">
-      <h1 className="text-2xl font-semibold mb-4">Painel Admin</h1>
-      <p className="text-sm text-slate-500 mb-4">Gerencie dados do salão, horários de agenda, dias visíveis e serviços.</p>
+      <h1 className="text-2xl font-semibold mb-4">
+        {user?.role === 'developer' ? 'Painel do Desenvolvedor' : 'Painel Admin'}
+      </h1>
+      {user?.role !== 'developer' && (
+        <p className="text-sm text-slate-500 mb-4">Gerencie dados do salão, horários de agenda, dias visíveis e serviços.</p>
+      )}
 
       {/* Âncora topo */}
       <div ref={topRef} />
@@ -164,12 +170,18 @@ export default function AdminDashboard() {
       {/* Barra de navegação */}
       <div className="sticky top-0 bg-white z-10 py-2 border-b mb-4">
         <div className="flex flex-wrap items-center gap-2">
-          <Button className="h-8 px-3" onClick={() => estabRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>Estabelecimento</Button>
+          {user?.role !== 'developer' && (
+            <Button className="h-8 px-3" onClick={() => estabRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>Estabelecimento</Button>
+          )}
           <Button className="h-8 px-3" onClick={() => bannersRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>Banners</Button>
-          <Button className="h-8 px-3" onClick={() => horariosRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>Horários</Button>
-          <Button className="h-8 px-3" onClick={() => agendaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>Agenda</Button>
-          <Button className="h-8 px-3" onClick={() => servicosRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>Serviços</Button>
-          <Button className="h-8 px-3" onClick={() => senhaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>Senha</Button>
+          {user?.role !== 'developer' && (
+            <>
+              <Button className="h-8 px-3" onClick={() => horariosRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>Horários</Button>
+              <Button className="h-8 px-3" onClick={() => agendaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>Agenda</Button>
+              <Button className="h-8 px-3" onClick={() => servicosRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>Serviços</Button>
+              <Button className="h-8 px-3" onClick={() => senhaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>Senha</Button>
+            </>
+          )}
 
           {/* Ações rápidas */}
           <div className="ml-auto flex items-center gap-2">
@@ -182,64 +194,77 @@ export default function AdminDashboard() {
       {/* âncoras serão posicionadas diretamente antes de cada seção */}
 
       <div className="grid md:grid-cols-2 gap-6">
-        {/* Âncora Estabelecimento */}
-        <div ref={estabRef} />
-        <Card title="Estabelecimento" subtitle="Nome, telefone e logo.">
-          <div className="grid gap-3">
-            <label className="grid gap-1">
-              <span className="text-sm">Nome do estabelecimento</span>
-              <Input value={settings.salonName} onChange={(e) => update({ salonName: e.target.value })} />
-            </label>
-            <label className="grid gap-1">
-              <span className="text-sm">Telefone (WhatsApp)</span>
-              <Input placeholder="Ex.: 5531999999999" value={settings.phone} onChange={(e) => update({ phone: e.target.value })} />
-              <span className="text-xs text-slate-500">Use DDI+DDD+Número, apenas dígitos. Ex.: 5531999999999</span>
-            </label>
-            <div className="grid gap-1">
-              <span className="text-sm">Logo</span>
-              <UploadButton onFileSelect={onLogoFile} />
-              {settings.logoUrl ? (
-                <div className="mt-2 flex items-center gap-3">
-                  <img src={settings.logoUrl} alt="Logo" className="h-10 w-10 object-contain border rounded" />
-                  <Button variant="outline" className="h-8 px-3" onClick={() => update({ logoUrl: undefined })}>Remover logo</Button>
+        {/* Âncora Estabelecimento (oculto no modo desenvolvedor) */}
+        {user?.role !== 'developer' && (
+          <>
+            <div ref={estabRef} />
+            <Card title="Estabelecimento" subtitle="Nome, telefone e logo.">
+              <div className="grid gap-3">
+                <label className="grid gap-1">
+                  <span className="text-sm">Nome do estabelecimento</span>
+                  <Input value={settings.salonName} onChange={(e) => update({ salonName: e.target.value })} />
+                </label>
+                <label className="grid gap-1">
+                  <span className="text-sm">Telefone (WhatsApp)</span>
+                  <Input placeholder="Ex.: 5531999999999" value={settings.phone} onChange={(e) => update({ phone: e.target.value })} />
+                  <span className="text-xs text-slate-500">Use DDI+DDD+Número, apenas dígitos. Ex.: 5531999999999</span>
+                </label>
+                <div className="grid gap-1">
+                  <span className="text-sm">Logo</span>
+                  <UploadButton onFileSelect={onLogoFile} />
+                  {settings.logoUrl ? (
+                    <div className="mt-2 flex items-center gap-3">
+                      <img src={settings.logoUrl} alt="Logo" className="h-10 w-10 object-contain border rounded" />
+                      <Button variant="outline" className="h-8 px-3" onClick={() => update({ logoUrl: undefined })}>Remover logo</Button>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-500">Carregue uma imagem para usar como logo no topo.</p>
+                  )}
                 </div>
-              ) : (
-                <p className="text-xs text-slate-500">Carregue uma imagem para usar como logo no topo.</p>
-              )}
-            </div>
-          </div>
-        </Card>
+              </div>
+            </Card>
+          </>
+        )}
 
         {/* Âncora Banners */}
         <div ref={bannersRef} />
         <Card title="Banners de Parceiros" subtitle="Anúncios exibidos abaixo da logo no cabeçalho.">
           <div className="grid gap-3">
-            <div className="grid md:grid-cols-[1fr_auto] gap-2 items-end">
-              <label className="grid gap-1">
-                <span className="text-sm">Imagem do banner</span>
-                <UploadButton onFileSelect={onBannerFile} />
-                {newBanner.imageUrl ? (
-                  <img src={newBanner.imageUrl} alt="Prévia banner" className="h-12 rounded border mt-2" />
-                ) : (
-                  <span className="text-xs text-slate-500">Carregue uma imagem para o banner.</span>
-                )}
-              </label>
-              <label className="grid gap-1">
-                <span className="text-sm">Link (opcional)</span>
-                <Input placeholder="https://..." value={newBanner.href || ''} onChange={(e) => setNewBanner((v) => ({ ...v, href: e.target.value }))} />
-              </label>
-              <div className="grid gap-1">
-                <span className="text-sm">Modo de exibição</span>
-                <select className="h-9 border rounded px-2" value={newBanner.displayMode || 'contain'} onChange={(e) => setNewBanner((v) => ({ ...v, displayMode: e.target.value as 'contain' | 'cover' }))}>
-                  <option value="contain">Ajustar (sem cortes)</option>
-                  <option value="cover">Preencher (pode cortar)</option>
-                </select>
+            {/* Gate de acesso: developer sempre pode; admin apenas se bannerAccess === 'admin' */}
+            {!(user?.role === 'developer' || settings.bannerAccess === 'admin') ? (
+              <div className="p-3 border rounded bg-slate-50">
+                <p className="text-sm text-slate-600">
+                  Recurso disponível apenas para desenvolvedor. Ao adquirir o app, o acesso a banners pode ser liberado para o administrador.
+                </p>
               </div>
-              <Button onClick={addBanner}>Adicionar banner</Button>
-            </div>
+            ) : (
+              <>
+              <div className="grid md:grid-cols-[1fr_auto] gap-2 items-end">
+                <label className="grid gap-1">
+                  <span className="text-sm">Imagem do banner</span>
+                  <UploadButton onFileSelect={onBannerFile} />
+                  {newBanner.imageUrl ? (
+                    <img src={newBanner.imageUrl} alt="Prévia banner" className="h-12 rounded border mt-2" />
+                  ) : (
+                    <span className="text-xs text-slate-500">Carregue uma imagem para o banner.</span>
+                  )}
+                </label>
+                <label className="grid gap-1">
+                  <span className="text-sm">Link (opcional)</span>
+                  <Input placeholder="https://..." value={newBanner.href || ''} onChange={(e) => setNewBanner((v) => ({ ...v, href: e.target.value }))} />
+                </label>
+                <div className="grid gap-1">
+                  <span className="text-sm">Modo de exibição</span>
+                  <select className="h-9 border rounded px-2" value={newBanner.displayMode || 'contain'} onChange={(e) => setNewBanner((v) => ({ ...v, displayMode: e.target.value as 'contain' | 'cover' }))}>
+                    <option value="contain">Ajustar (sem cortes)</option>
+                    <option value="cover">Preencher (pode cortar)</option>
+                  </select>
+                </div>
+                <Button onClick={addBanner}>Adicionar banner</Button>
+              </div>
 
-            <div className="grid gap-1">
-              <span className="text-sm">Tempo de troca (segundos)</span>
+              <div className="grid gap-1">
+                <span className="text-sm">Tempo de troca (segundos)</span>
               <Input
                 type="number"
                 min={0}
@@ -289,10 +314,14 @@ export default function AdminDashboard() {
                 ))}
               </ul>
             )}
+              </>
+            )}
           </div>
         </Card>
 
-        {/* Âncora Horários */}
+        {/* Âncora Horários (oculto no modo desenvolvedor) */}
+        {user?.role !== 'developer' && (
+        <>
         <div ref={horariosRef} />
         <Card title="Horários" subtitle="Defina o intervalo de funcionamento.">
           <div className="grid gap-3">
@@ -315,8 +344,12 @@ export default function AdminDashboard() {
             <p className="text-xs text-slate-500">Os horários disponíveis na agenda seguem intervalo de 1 hora.</p>
           </div>
         </Card>
+        </>
+        )}
 
-        {/* Âncora Agenda */}
+        {/* Âncora Agenda (oculto no modo desenvolvedor) */}
+        {user?.role !== 'developer' && (
+        <>
         <div ref={agendaRef} />
         <Card title="Agenda" subtitle="Controle dias visíveis e bloqueios.">
           <div className="grid gap-3">
@@ -404,8 +437,12 @@ export default function AdminDashboard() {
             </div>
           </div>
         </Card>
+        </>
+        )}
 
-        {/* Âncora Serviços */}
+        {/* Âncora Serviços (oculto no modo desenvolvedor) */}
+        {user?.role !== 'developer' && (
+        <>
         <div ref={servicosRef} />
         <Card title="Serviços" subtitle="Adicionar, editar e remover.">
           <div className="grid gap-3">
@@ -466,12 +503,18 @@ export default function AdminDashboard() {
             )}
           </div>
         </Card>
+        </>
+        )}
 
-        {/* Âncora Senha */}
-        <div ref={senhaRef} />
-        <div>
-          <ChangePasswordForm />
-        </div>
+        {/* Âncora Senha (oculto no modo desenvolvedor) */}
+        {user?.role !== 'developer' && (
+          <>
+            <div ref={senhaRef} />
+            <div>
+              <ChangePasswordForm />
+            </div>
+          </>
+        )}
 
       </div>
       

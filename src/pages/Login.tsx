@@ -27,10 +27,15 @@ export default function Login() {
     if (!emailRegex.test(email)) nextErrors.email = 'Informe um e-mail válido.'
     if (password.length < 6) nextErrors.password = 'A senha deve ter ao menos 6 caracteres.'
     
-    // Verificar se é tentativa de login de admin
-    const isAdminEmail = email.trim().toLowerCase() === 'admin@agendei.com'
+    // Verificar se é tentativa de login de admin ou desenvolvedor
+    const normalizedEmail = email.trim().toLowerCase()
+    const isAdminEmail = normalizedEmail === 'admin@agendei.com'
+    const isDevEmail = normalizedEmail === 'desenvolvedor@agendei.com'
     if (isAdminEmail && password !== settings.adminPassword) {
       nextErrors.password = 'Senha incorreta para o administrador.'
+    }
+    if (isDevEmail && password !== (settings as any).developerPassword) {
+      nextErrors.password = 'Senha incorreta para o desenvolvedor.'
     }
     
     setErrors(nextErrors)
@@ -38,6 +43,7 @@ export default function Login() {
     
     // Login bem-sucedido
     const isAdmin = isAdminEmail
+    const isDeveloper = isDevEmail
 
     // Se o e-mail mudou em relação ao usuário atual, limpar perfil salvo
     const isDifferentUser = (prevUser?.email || '').toLowerCase() !== email.trim().toLowerCase()
@@ -45,8 +51,8 @@ export default function Login() {
       reset()
     }
 
-    login({ name: isAdmin ? 'Admin' : 'Cliente', email, role: isAdmin ? 'admin' : 'user' })
-    navigate(isAdmin ? '/admin' : '/')
+    login({ name: isAdmin ? 'Admin' : isDeveloper ? 'Desenvolvedor' : 'Cliente', email, role: isAdmin ? 'admin' : isDeveloper ? 'developer' : 'user' })
+    navigate(isAdmin || isDeveloper ? '/admin' : '/')
   }
 
   return (

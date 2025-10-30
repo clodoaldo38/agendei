@@ -65,7 +65,7 @@ export default function NavBar() {
               <Link to="/" className="hover:text-brand">Serviços</Link>
               <Link to="/schedule" className="hover:text-brand">Agendar</Link>
               <Link to="/profile" className="hover:text-brand">Perfil</Link>
-              {user?.role === 'admin' && (
+              {(user?.role === 'admin' || user?.role === 'developer') && (
                 <Link to="/admin" className="hover:text-brand">Admin</Link>
               )}
               <Link to="/schedule" className="relative hover:text-brand" title="Carrinho">

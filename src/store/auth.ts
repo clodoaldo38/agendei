@@ -3,7 +3,7 @@ import { create } from 'zustand'
 type User = {
   name: string
   email: string
-  role: 'user' | 'admin'
+  role: 'user' | 'admin' | 'developer'
 }
 
 type AuthState = {

@@ -22,6 +22,8 @@ type Settings = {
   partnerBannerIntervalMs: number // auto-slide interval for partner banners
   currentHourCutoffMin: number // minutes after current hour starts to block it (0-59)
   adminPassword: string // senha do administrador
+  developerPassword?: string // senha do desenvolvedor
+  bannerAccess?: 'developer' | 'admin' | 'none' // controle de acesso ao módulo de banners
 }
 
 type SettingsState = {
@@ -50,6 +52,8 @@ const defaultSettings: Settings = {
   partnerBannerIntervalMs: 5000,
   currentHourCutoffMin: 5,
   adminPassword: 'Admin123!', // senha padrão do administrador
+  developerPassword: 'Desenvolvedor123!',
+  bannerAccess: 'developer',
 }
 
 const LS_KEY = 'agendei_settings'
