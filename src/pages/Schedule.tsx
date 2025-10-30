@@ -174,6 +174,7 @@ export default function Schedule() {
               })()}
               onClick={confirmAppointment}
               variant="whatsapp"
+              className="px-3 py-1.5 text-xs leading-tight"
             >
               Confirmar agendamento (WhatsApp)
             </Button>
