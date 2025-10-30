@@ -29,6 +29,12 @@ export default function AdminDashboard() {
   const [devPassword, setDevPassword] = useState('')
   const [devConfirmPassword, setDevConfirmPassword] = useState('')
   const [devSuccessMsg, setDevSuccessMsg] = useState<string | null>(null)
+  
+  // Banner access control
+  const [bannerAccessDraft, setBannerAccessDraft] = useState<'developer' | 'admin' | 'none'>(() => settings.bannerAccess || 'developer')
+  useEffect(() => {
+    setBannerAccessDraft(settings.bannerAccess || 'developer')
+  }, [settings.bannerAccess])
   const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
   const emailValid = emailRegex.test(devEmailDraft.trim())
   const pwdLength = devPassword.length >= 8
@@ -70,6 +76,15 @@ export default function AdminDashboard() {
     setSaved(true)
     setTimeout(() => setSaved(false), 1500)
     setDevSuccessMsg('Acesso do desenvolvedor atualizado com sucesso!')
+  }
+
+  function saveBannerAccess() {
+    setDevSuccessMsg(null)
+    update({ bannerAccess: bannerAccessDraft })
+    save()
+    setSaved(true)
+    setTimeout(() => setSaved(false), 1500)
+    setDevSuccessMsg('Acesso aos banners atualizado com sucesso!')
   }
 
   function slugify(name: string) {
@@ -271,6 +286,29 @@ export default function AdminDashboard() {
                 <Button variant="outline" className="h-9 px-3" onClick={generateStrongPassword}>Gerar senha forte</Button>
                 <Button className="h-9 px-3" onClick={saveDeveloperAccess} disabled={!emailValid || !passwordValid || !confirmValid}>Salvar acesso</Button>
               </div>
+              
+              {/* Separador visual */}
+              <hr className="border-slate-200" />
+              
+              {/* Controle de acesso aos banners */}
+              <label className="grid gap-1">
+                <span className="text-sm">Acesso aos banners</span>
+                <select 
+                  className="h-9 border rounded px-2" 
+                  value={bannerAccessDraft} 
+                  onChange={(e) => setBannerAccessDraft(e.target.value as 'developer' | 'admin' | 'none')}
+                >
+                  <option value="developer">Desenvolvedor</option>
+                  <option value="admin">Administrador</option>
+                  <option value="none">Bloqueado</option>
+                </select>
+                <span className="text-xs text-slate-500">
+                  Define quem pode gerenciar banners de parceiros no painel administrativo.
+                </span>
+              </label>
+              
+              <Button className="h-9 px-3" onClick={saveBannerAccess}>Salvar acesso</Button>
+              
               {devSuccessMsg && (
                 <span className={devSuccessMsg.startsWith('Acesso') ? 'text-xs text-green-600' : 'text-xs text-red-600'}>
                   {devSuccessMsg}
