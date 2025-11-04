@@ -40,7 +40,7 @@ export default function Services() {
             <span className="text-sm text-slate-600">Itens selecionados</span>
             <Button
               variant="outline"
-              className="h-8 px-3 bg-slate-100 hover:bg-red-100 text-slate-900"
+              className="px-3 py-1.5 text-xs leading-tight bg-black text-white hover:bg-black/90 border-transparent"
               onClick={closeCart}
               aria-label="Fechar carrinho"
             >
@@ -59,7 +59,13 @@ export default function Services() {
                 <div className="flex items-center gap-2">
                   <Button variant="outline" className="h-7 px-2" onClick={() => decrease(i.id)}>−</Button>
                   <Button variant="outline" className="h-7 px-2" onClick={() => increase(i.id)}>+</Button>
-                  <button className="text-sm text-red-600" onClick={() => remove(i.id)}>Remover</button>
+                  <Button
+                    variant="outline"
+                    className="px-3 py-1.5 text-xs leading-tight bg-black text-white hover:bg-black/90 border-transparent"
+                    onClick={() => remove(i.id)}
+                  >
+                    Remover
+                  </Button>
                 </div>
               </li>
             ))}
@@ -67,7 +73,11 @@ export default function Services() {
         )}
         <div className="mt-4 flex items-center justify-between">
           <span className="font-medium">Total: R$ {total.toFixed(2)}</span>
-          <Link to="/schedule" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className={`inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium ${items.length ? 'bg-brand text-white hover:bg-brand-dark' : 'bg-slate-200 text-slate-500 pointer-events-none'}`}>
+          <Link
+            to="/schedule"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className={`inline-flex items-center justify-center rounded-xl font-medium px-3 py-1.5 text-xs leading-tight ${items.length ? 'bg-black text-white hover:bg-black/90' : 'bg-slate-200 text-slate-500 pointer-events-none'}`}
+          >
             Realizar agendamento
           </Link>
         </div>

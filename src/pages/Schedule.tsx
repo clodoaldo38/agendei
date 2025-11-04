@@ -186,6 +186,7 @@ export default function Schedule() {
                 }
               }}
               disabled={items.length === 0}
+              className="px-3 py-1.5 text-xs leading-tight bg-black text-white hover:bg-black/90 border-transparent"
             >
               Esvaziar carrinho
             </Button>
