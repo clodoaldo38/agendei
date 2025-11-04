@@ -3,6 +3,7 @@ import { create } from 'zustand'
 export type Profile = {
   name: string
   phone: string
+  email?: string
   photoUrl?: string
 }
 

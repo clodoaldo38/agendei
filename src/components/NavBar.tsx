@@ -8,7 +8,7 @@ import PartnerBannerStrip from './PartnerBannerStrip'
 
 export default function NavBar() {
   const [open, setOpen] = useState(false)
-  const { items } = useCartStore()
+  const { items, isOpen, toggleCart } = useCartStore()
   const location = useLocation()
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
@@ -69,14 +69,31 @@ export default function NavBar() {
               {(user?.role === 'admin' || user?.role === 'developer') && (
                 <Link to="/admin" className="hover:text-brand">Admin</Link>
               )}
-              <Link to="/schedule" className="relative hover:text-brand" title="Carrinho">
+              <button
+                type="button"
+                className="relative hover:text-brand"
+                title="Carrinho"
+                aria-label="Abrir carrinho"
+                onClick={() => {
+                  if (location.pathname === '/') {
+                    const wasOpen = isOpen
+                    toggleCart()
+                    if (!wasOpen) {
+                      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+                    }
+                  } else {
+                    navigate('/schedule')
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                  }
+                }}
+              >
                 <ShoppingCart />
                 {items.reduce((n, i) => n + i.qty, 0) > 0 && (
                   <span className="absolute -top-2 -right-2 bg-brand text-white text-xs rounded-full px-1">
                     {items.reduce((n, i) => n + i.qty, 0)}
                   </span>
                 )}
-              </Link>
+              </button>
               {user ? (
                 <button onClick={handleLogout} aria-label="Sair" className="px-3 py-1.5 rounded-full bg-brand text-white shadow-sm hover:bg-brand-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light transition-colors">Sair</button>
               ) : (
@@ -115,10 +132,26 @@ export default function NavBar() {
                 {user?.role === 'admin' && (
                   <Link to="/admin" onClick={() => setOpen(false)} className="py-2">Admin</Link>
                 )}
-                <Link to="/schedule" onClick={() => setOpen(false)} className="py-2 flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    if (location.pathname === '/') {
+                      const wasOpen = isOpen
+                      toggleCart()
+                      if (!wasOpen) {
+                        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+                      }
+                    } else {
+                      navigate('/schedule')
+                      window.scrollTo({ top: 0, behavior: 'smooth' })
+                    }
+                    setOpen(false)
+                  }}
+                  className="py-2 flex items-center gap-2"
+                  aria-label="Abrir carrinho"
+                >
                   <ShoppingCart />
                   Carrinho ({items.length})
-                </Link>
+                </button>
                 {user ? (
                   <button
                     onClick={() => {

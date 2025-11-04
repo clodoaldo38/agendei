@@ -6,7 +6,7 @@ import Button from '../components/ui/Button'
 import { Link } from 'react-router-dom'
 
 export default function Services() {
-  const { items, add, remove, increase, decrease } = useCartStore()
+  const { items, add, remove, increase, decrease, isOpen, closeCart } = useCartStore()
   const { settings } = useSettingsStore()
   const SERVICES: ServiceItem[] = settings.services
   const total = items.reduce((sum, i) => sum + i.price * i.qty, 0)
@@ -34,10 +34,19 @@ export default function Services() {
         ))}
       </div>
 
-      <Card className="mt-6" title="Carrinho">
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-slate-600">Itens selecionados</span>
-        </div>
+      {isOpen && (
+        <Card className="mt-6" title="Carrinho">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-slate-600">Itens selecionados</span>
+            <Button
+              variant="outline"
+              className="h-8 px-3 bg-slate-100 hover:bg-red-100 text-slate-900"
+              onClick={closeCart}
+              aria-label="Fechar carrinho"
+            >
+              Fechar
+            </Button>
+          </div>
         {items.length === 0 ? (
           <p className="text-sm text-slate-500 mt-2">Nenhum serviço adicionado.</p>
         ) : (
@@ -63,6 +72,7 @@ export default function Services() {
           </Link>
         </div>
       </Card>
+      )}
     </div>
   )
 }

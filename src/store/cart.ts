@@ -10,15 +10,20 @@ export type CartLine = ServiceItem & { qty: number }
 
 type CartState = {
   items: CartLine[]
+  isOpen: boolean
   add: (item: ServiceItem) => void
   increase: (id: string) => void
   decrease: (id: string) => void
   remove: (id: string) => void
   clear: () => void
+  openCart: () => void
+  closeCart: () => void
+  toggleCart: () => void
 }
 
 export const useCartStore = create<CartState>((set) => ({
   items: [],
+  isOpen: false,
   add: (item) => set((s) => {
     const idx = s.items.findIndex((i) => i.id === item.id)
     if (idx >= 0) {
@@ -38,4 +43,7 @@ export const useCartStore = create<CartState>((set) => ({
   })),
   remove: (id) => set((s) => ({ items: s.items.filter((i) => i.id !== id) })),
   clear: () => set({ items: [] }),
+  openCart: () => set({ isOpen: true }),
+  closeCart: () => set({ isOpen: false }),
+  toggleCart: () => set((s) => ({ isOpen: !s.isOpen })),
 }))
